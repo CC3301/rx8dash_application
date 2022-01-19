@@ -4,6 +4,7 @@ import os
 from PIL import Image, ImageTk
 from datetime import datetime
 
+
 class GUI:
     def __init__(self, config, sensors):
         self.logger = logging.getLogger('rx8dash.GUI')
@@ -36,11 +37,7 @@ class GUI:
         self._toplevel.resizable(False, False)
 
         # load assets
-        self.logger.debug("Loading assets")
-        self.__small_gauge_template = ImageTk.PhotoImage(
-            Image.open(f"data/assets/templates/{self.config.config['application:gui']['small_gauge_template']}")
-            .resize((328, 285), Image.ANTIALIAS)
-        )
+        self._load_assets()
 
         # main frame containing the entire gui
         self._main_frame = tkinter.Frame(self._toplevel, bg=bg)
@@ -54,11 +51,11 @@ class GUI:
         self._secondary_frame.grid(column=0, row=1, padx=0, pady=50)
 
         # aux gauges
-        self._oil_temp_frame = tkinter.Frame(self._aux_frame, bg=bg, width=328, height=285)
-        self._oil_temp_frame.grid(column=0, row=0, padx=0, pady=0)
-
         self._oil_pres_frame = tkinter.Frame(self._aux_frame, bg=bg, borderwidth=0)
-        self._oil_pres_frame.grid(column=1, row=0, padx=5, pady=0)
+        self._oil_pres_frame.grid(column=0, row=0, padx=5, pady=0)
+
+        self._oil_temp_frame = tkinter.Frame(self._aux_frame, bg=bg, width=328, height=285)
+        self._oil_temp_frame.grid(column=1, row=0, padx=0, pady=0)
 
         self._water_temp_frame = tkinter.Frame(self._aux_frame, bg=bg, width=328, height=285)
         self._water_temp_frame.grid(column=2, row=0, padx=0, pady=0)
@@ -78,16 +75,22 @@ class GUI:
                                                highlightthickness=0, relief='ridge')
         self._oil_pres_canvas.pack(padx=0, pady=0, expand=1, fill='both')
         self._oil_pres_canvas.create_image(174, 142, image=self.__small_gauge_template)
+        self._oil_pres_icon = self._oil_pres_canvas.create_image(174, 220, image=self.__oil_pres_icon)
+        self._oil_pres_readout = self._oil_pres_canvas.create_text(174, 100, text="--- bar", fill=fc)
 
         self._oil_temp_canvas = tkinter.Canvas(self._oil_temp_frame, width=328, height=285, bd=0, bg=bg,
                                                highlightthickness=0, relief='ridge')
         self._oil_temp_canvas.pack(padx=0, pady=0, expand=1, fill='both')
         self._oil_temp_canvas.create_image(174, 142, image=self.__small_gauge_template)
+        self._oil_temp_icon = self._oil_temp_canvas.create_image(174, 220, image=self.__oil_temp_icon)
+        self._oil_temp_readout = self._oil_temp_canvas.create_text(174, 100, text="--- °C", fill=fc)
 
         self._water_temp_canvas = tkinter.Canvas(self._water_temp_frame, width=328, height=285, bd=0, bg=bg,
                                                  highlightthickness=0, relief='ridge')
         self._water_temp_canvas.pack(padx=0, pady=0, expand=1, fill='both')
         self._water_temp_canvas.create_image(174, 142, image=self.__small_gauge_template)
+        self._water_temp_icon = self._water_temp_canvas.create_image(174, 220, image=self.__water_temp_icon)
+        self._water_temp_readout = self._water_temp_canvas.create_text(174, 100, text="--- °C", fill=fc)
 
         # secondary gauges
         self._rtc_date_label = tkinter.Label(self._time_amb_temp_frame, bg=bg, fg=fc)
@@ -98,13 +101,6 @@ class GUI:
 
         self._amb_temp_label = tkinter.Label(self._time_amb_temp_frame, bg=bg, fg=fc)
         self._amb_temp_label.grid(column=0, row=2)
-
-
-        coord = 10, 50, 240, 210
-
-        # arc = self._oil_pres_canvas.create_arc(coord,   start = 0, extent = 150, fill = "blue")
-        # arc = self._oil_temp_canvas.create_arc(coord, start = 0, extent = 150, fill = "green")
-        # arc = self._water_temp_canvas.create_arc(coord, start = 0, extent = 150, fill = "red")
 
     def run_gui(self):
         self.update_gui()
@@ -120,5 +116,88 @@ class GUI:
         self._rtc_time_label.config(text=str(datetime.fromtimestamp(self.values['rtc']).strftime('%H:%M:%S')))
         self._amb_temp_label.config(text=f"{('+' if self.values['amb'] > 0 else '') + str(self.values['amb'])} °C")
 
+        # update water temp gauge
+        if self.values['water']['temp'] < 80:
+            self.__water_temp_icon = self.__water_temp_icon_blue
+        elif 80 <= self.values['water']['temp'] < 100:
+            self.__water_temp_icon = self.__water_temp_icon_normal
+        else:
+            self.__water_temp_icon = self.__water_temp_icon_red
+
+        self._water_temp_canvas.itemconfig(self._water_temp_icon, image=self.__water_temp_icon)
+        self._water_temp_canvas.itemconfig(self._water_temp_readout,
+                                           text=f"{('+' if self.values['water']['temp'] > 0 else '') + str(self.values['water']['temp'])} °C")
+
+        # update oil temp gauge
+        if self.values['oil']['temp'] < 80:
+            self.__oil_temp_icon = self.__oil_temp_icon_blue
+        elif 80 <= self.values['oil']['temp'] < 100:
+            self.__oil_temp_icon = self.__oil_temp_icon_normal
+        else:
+            self.__oil_temp_icon = self.__oil_temp_icon_red
+
+        self._oil_temp_canvas.itemconfig(self._oil_temp_icon, image=self.__oil_temp_icon)
+        self._oil_temp_canvas.itemconfig(self._oil_temp_readout,
+                                         text=f"{('+' if self.values['oil']['temp'] > 0 else '') + str(self.values['oil']['temp'])} °C")
+
+        # update oil pressure gauge
+        if self.values['oil']['pres'] < 80:
+            self.__oil_pres_icon = self.__oil_pres_icon_blue
+        elif 80 <= self.values['oil']['pres'] < 100:
+            self.__oil_pres_icon = self.__oil_pres_icon_normal
+        else:
+            self.__oil_pres_icon = self.__oil_temp_icon_red
+
+        self._oil_pres_canvas.itemconfig(self._oil_pres_icon, image=self.__oil_pres_icon)
+        self._oil_pres_canvas.itemconfig(self._oil_pres_readout,
+                                         text=f"{self.values['oil']['pres']} bar")
+
         self._toplevel.update()
         self._toplevel.after(1, self.update_gui)
+
+    def _load_assets(self):
+        self.logger.info("Loading assets")
+        self.__small_gauge_template = ImageTk.PhotoImage(
+            Image.open(f"data/assets/templates/{self.config.config['application:gui']['small_gauge_template']}")
+                .resize((328, 285), Image.ANTIALIAS)
+        )
+
+        # water temp icons
+        self.__water_temp_icon_blue = ImageTk.PhotoImage(
+            Image.open("data/assets/aux_gauges/icons/water_temp_blue.png").resize((65, 54), Image.ANTIALIAS)
+        )
+        self.__water_temp_icon_red = ImageTk.PhotoImage(
+            Image.open("data/assets/aux_gauges/icons/water_temp_red.png").resize((65, 54), Image.ANTIALIAS)
+        )
+        self.__water_temp_icon_normal = ImageTk.PhotoImage(
+            Image.open("data/assets/aux_gauges/icons/water_temp_normal.png").resize((65, 54), Image.ANTIALIAS)
+        )
+
+        # oil temp icons
+        self.__oil_temp_icon_blue = ImageTk.PhotoImage(
+            Image.open("data/assets/aux_gauges/icons/oil_temp_blue.png").resize((80, 80), Image.ANTIALIAS)
+        )
+        self.__oil_temp_icon_red = ImageTk.PhotoImage(
+            Image.open("data/assets/aux_gauges/icons/oil_temp_red.png").resize((80, 80), Image.ANTIALIAS)
+        )
+        self.__oil_temp_icon_normal = ImageTk.PhotoImage(
+            Image.open("data/assets/aux_gauges/icons/oil_temp_normal.png").resize((80, 80), Image.ANTIALIAS)
+        )
+
+        # oil pressure icons
+        self.__oil_pres_icon_blue = ImageTk.PhotoImage(
+            Image.open("data/assets/aux_gauges/icons/oil_pressure_blue.png").resize((80, 80), Image.ANTIALIAS)
+        )
+        self.__oil_pres_icon_red = ImageTk.PhotoImage(
+            Image.open("data/assets/aux_gauges/icons/oil_pressure_red.png").resize((80, 80), Image.ANTIALIAS)
+        )
+        self.__oil_pres_icon_normal = ImageTk.PhotoImage(
+            Image.open("data/assets/aux_gauges/icons/oil_pressure_normal.png").resize((80, 80), Image.ANTIALIAS)
+        )
+
+        # set defaults
+        self.__water_temp_icon = self.__water_temp_icon_normal
+        self.__oil_temp_icon = self.__oil_temp_icon_normal
+        self.__oil_pres_icon = self.__oil_pres_icon_normal
+
+        self.logger.info("Finished loading assets")

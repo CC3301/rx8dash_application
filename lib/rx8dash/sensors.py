@@ -30,22 +30,22 @@ class SensorHandler:
         val = 0
         while self.update:
 
-            for i in range(10):
-                val += i
+            for i in range(15):
+                val += 10
                 self.current_updateset = {
                     "rtc": time.time(),
-                    "amb": 0,
+                    "amb": val,
                     "rpm": 800,
                     "tach": 0,
                     "oil": {
                         "pres": val,
-                        "temp": 17
+                        "temp": val
                     },
                     "water": {
-                        "temp": 17
+                        "temp": val
                     }
                 }
-                time.sleep(0.1)
+                time.sleep(0.3)
             val = 0
 
         self.logger.debug("Update loop exited, assuming stop condition")
