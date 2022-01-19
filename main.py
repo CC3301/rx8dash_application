@@ -28,6 +28,9 @@ class Rx8Dash:
         # create and run GUI
         self.gui = GUI(self.config, self.sensors)
         self.gui.run_gui()
+        self.logger.critical("GUI loop has exited unexpectedly")
+
+        self.stop()
 
     def stop(self):
         self.logger.info("Received stop request, ending threads")
@@ -53,7 +56,7 @@ if __name__ == '__main__':
     # check config file
     logger.debug("checking for config file")
     if not len(sys.argv) > 1:
-        logger.fatal("Config file not found - aborting")
+        logger.critical("Config file not found - aborting")
         sys.exit(0)
     else:
         configfile = sys.argv[1]

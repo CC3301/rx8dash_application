@@ -36,6 +36,9 @@ class GUI:
         self._toplevel.title("rx8dash")
         self._toplevel.resizable(False, False)
 
+        # set up secret exit keyboard combo for embedded use
+        self._toplevel.bind('<Control-t>', self.stop_gui)
+
         # load assets
         self._load_assets()
 
@@ -91,6 +94,7 @@ class GUI:
         self._water_temp_canvas.create_image(174, 142, image=self.__small_gauge_template)
         self._water_temp_icon = self._water_temp_canvas.create_image(174, 220, image=self.__water_temp_icon)
         self._water_temp_readout = self._water_temp_canvas.create_text(174, 100, text="--- °C", fill=fc)
+        self._water_temp_needle = self._water_temp_canvas.create_image(174, 156, image=self.__needle)
 
         # secondary gauges
         self._rtc_date_label = tkinter.Label(self._time_amb_temp_frame, bg=bg, fg=fc)
@@ -102,11 +106,17 @@ class GUI:
         self._amb_temp_label = tkinter.Label(self._time_amb_temp_frame, bg=bg, fg=fc)
         self._amb_temp_label.grid(column=0, row=2)
 
-    def run_gui(self):
+        # call for initial update and enable subsequent updates
         self.update_gui()
 
-        self.logger.debug("calling toplevel.mainloop()")
+    def stop_gui(self, event):
+        self.logger.critical("Received Keyboard-Exit combination. Stopping GUI!")
+        self._toplevel.destroy()
+
+    def run_gui(self):
+        self.logger.debug("Calling toplevel.mainloop()")
         self._toplevel.mainloop()
+        self.logger.critical("toplevel.mainloop() has exited")
 
     def update_gui(self):
         self.values = self.sensors.fetch()
@@ -152,14 +162,19 @@ class GUI:
         self._oil_pres_canvas.itemconfig(self._oil_pres_readout,
                                          text=f"{self.values['oil']['pres']} bar")
 
+        # update the toplevel and schedule next update
         self._toplevel.update()
         self._toplevel.after(1, self.update_gui)
 
     def _load_assets(self):
         self.logger.info("Loading assets")
+
+        # templates
         self.__small_gauge_template = ImageTk.PhotoImage(
-            Image.open(f"data/assets/templates/{self.config.config['application:gui']['small_gauge_template']}")
-                .resize((328, 285), Image.ANTIALIAS)
+            Image.open(f"data/assets/templates/small_gauge.png").resize((328, 285), Image.ANTIALIAS)
+        )
+        self.__needle = ImageTk.PhotoImage(
+            Image.open("data/assets/templates/needle.png").resize((270, 270), Image.ANTIALIAS)
         )
 
         # water temp icons
