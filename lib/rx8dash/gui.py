@@ -1,6 +1,8 @@
 import logging
 import tkinter
 import os
+from PIL import Image, ImageTk
+from datetime import datetime
 
 class GUI:
     def __init__(self, config, sensors):
@@ -10,44 +12,99 @@ class GUI:
         self.config = config
         self.sensors = sensors
 
-        self.width  = int(self.config.config['hardware:screen']['width'])
+        self.width = int(self.config.config['hardware:screen']['width'])
         self.height = int(self.config.config['hardware:screen']['height'])
-        self.xpos   = int(self.width / 2)
-        self.ypos   = int(self.height / 2)
+        self.xpos = int(self.width / 2)
+        self.ypos = int(self.height / 2)
 
         # fetch initial sensor data
         self.values = self.sensors.fetch()
-        
+
         self._setup()
 
-
     def _setup(self):
-        self.logger.debug("setting up core gui")
+        # grab some frequently used values from the config
+        bg = self.config.config['application:gui']['background']
+        fc = self.config.config['application:gui']['fontcolor']
+
+        # toplevel window
+        self.logger.debug("Setting up core gui")
         self._toplevel = tkinter.Tk()
         self._toplevel.geometry(f"{self.width}x{self.height}+{self.xpos}+{self.ypos}")
+        self._toplevel.config(bg=bg)
+        self._toplevel.title("rx8dash")
+        self._toplevel.resizable(False, False)
 
-        # load frames and canvasses
-        self._frames()
-        self.logger.debug("framing complete")
-        self._canvasses()
-        self.logger.debug("canvasses set up")
-        
-        self._aux_frame.pack()
+        # load assets
+        self.logger.debug("Loading assets")
+        self.__small_gauge_template = ImageTk.PhotoImage(
+            Image.open(f"data/assets/templates/{self.config.config['application:gui']['small_gauge_template']}")
+            .resize((328, 285), Image.ANTIALIAS)
+        )
 
-        #self._oil_pres_frame.pack()
-        #self._oil_pres_canvas.pack()
-        #self._oil_pres_readout.pack()
+        # main frame containing the entire gui
+        self._main_frame = tkinter.Frame(self._toplevel, bg=bg)
+        self._main_frame.pack(padx=5, pady=5, expand=1, fill="both")
 
-        self._oil_temp_frame.pack()
-        self._oil_temp_canvas.pack()
+        # secondary and aux frames
+        self._aux_frame = tkinter.Frame(self._main_frame, bg=bg)
+        self._aux_frame.grid(column=0, row=0, padx=0, pady=5)
+
+        self._secondary_frame = tkinter.Frame(self._main_frame, bg=bg)
+        self._secondary_frame.grid(column=0, row=1, padx=0, pady=50)
+
+        # aux gauges
+        self._oil_temp_frame = tkinter.Frame(self._aux_frame, bg=bg, width=328, height=285)
+        self._oil_temp_frame.grid(column=0, row=0, padx=0, pady=0)
+
+        self._oil_pres_frame = tkinter.Frame(self._aux_frame, bg=bg, borderwidth=0)
+        self._oil_pres_frame.grid(column=1, row=0, padx=5, pady=0)
+
+        self._water_temp_frame = tkinter.Frame(self._aux_frame, bg=bg, width=328, height=285)
+        self._water_temp_frame.grid(column=2, row=0, padx=0, pady=0)
+
+        # secondary gauges
+        self._rpm_frame = tkinter.Frame(self._secondary_frame, bg="yellow", width=328, height=195)
+        self._rpm_frame.grid(column=0, row=0, padx=0, pady=0)
+
+        self._time_amb_temp_frame = tkinter.Frame(self._secondary_frame, bg=bg, width=328, height=195)
+        self._time_amb_temp_frame.grid(column=1, row=0, padx=5, pady=0)
+
+        self._tach_frame = tkinter.Frame(self._secondary_frame, bg="lightblue", width=328, height=195)
+        self._tach_frame.grid(column=2, row=0, padx=0, pady=0)
+
+        # aux gauges
+        self._oil_pres_canvas = tkinter.Canvas(self._oil_pres_frame, width=328, height=285, bd=0, bg=bg,
+                                               highlightthickness=0, relief='ridge')
+        self._oil_pres_canvas.pack(padx=0, pady=0, expand=1, fill='both')
+        self._oil_pres_canvas.create_image(174, 142, image=self.__small_gauge_template)
+
+        self._oil_temp_canvas = tkinter.Canvas(self._oil_temp_frame, width=328, height=285, bd=0, bg=bg,
+                                               highlightthickness=0, relief='ridge')
+        self._oil_temp_canvas.pack(padx=0, pady=0, expand=1, fill='both')
+        self._oil_temp_canvas.create_image(174, 142, image=self.__small_gauge_template)
+
+        self._water_temp_canvas = tkinter.Canvas(self._water_temp_frame, width=328, height=285, bd=0, bg=bg,
+                                                 highlightthickness=0, relief='ridge')
+        self._water_temp_canvas.pack(padx=0, pady=0, expand=1, fill='both')
+        self._water_temp_canvas.create_image(174, 142, image=self.__small_gauge_template)
+
+        # secondary gauges
+        self._rtc_date_label = tkinter.Label(self._time_amb_temp_frame, bg=bg, fg=fc)
+        self._rtc_date_label.grid(column=0, row=0)
+
+        self._rtc_time_label = tkinter.Label(self._time_amb_temp_frame, bg=bg, fg=fc)
+        self._rtc_time_label.grid(column=0, row=1)
+
+        self._amb_temp_label = tkinter.Label(self._time_amb_temp_frame, bg=bg, fg=fc)
+        self._amb_temp_label.grid(column=0, row=2)
+
 
         coord = 10, 50, 240, 210
-        image = tkinter.PhotoImage(os.getcwd() + "/gimp/gauge_template.bmp")
-        self._oil_temp_canvas.create_image(10,10, image = image, anchor="nw")
+
         # arc = self._oil_pres_canvas.create_arc(coord,   start = 0, extent = 150, fill = "blue")
         # arc = self._oil_temp_canvas.create_arc(coord, start = 0, extent = 150, fill = "green")
         # arc = self._water_temp_canvas.create_arc(coord, start = 0, extent = 150, fill = "red")
-
 
     def run_gui(self):
         self.update_gui()
@@ -57,70 +114,11 @@ class GUI:
 
     def update_gui(self):
         self.values = self.sensors.fetch()
-        self._canvasses()
+
+        # update date, time and amb temp
+        self._rtc_date_label.config(text=str(datetime.fromtimestamp(self.values['rtc']).strftime('%d.%m.%Y')))
+        self._rtc_time_label.config(text=str(datetime.fromtimestamp(self.values['rtc']).strftime('%H:%M:%S')))
+        self._amb_temp_label.config(text=f"{('+' if self.values['amb'] > 0 else '') + str(self.values['amb'])} °C")
+
         self._toplevel.update()
-        self._toplevel.after(100, self.update_gui)
-        
-
-    #==========================================================================
-    # frames
-    #==========================================================================
-    def _frames(self):
-        self.__rpm_frame()
-        self.__tach_frame()
-        self.__aux_frame()
-        self.__oil_pres_frame()
-        self.__oil_temp_frame()
-        self.__water_temp_frame()
-
-    def __rpm_frame(self):
-        self._rpm_frame = tkinter.Frame(self._toplevel)
-    
-    def __tach_frame(self):
-        self._tach_frame = tkinter.Frame(self._toplevel)
-
-    def __aux_frame(self):
-        self._aux_frame = tkinter.Frame(self._toplevel)
-
-    def __oil_pres_frame(self):
-        self._oil_pres_frame = tkinter.Frame(self._aux_frame)
-    
-    def __oil_temp_frame(self):
-        self._oil_temp_frame = tkinter.Frame(self._aux_frame)
-    
-    def __water_temp_frame(self):
-        self._water_temp_frame = tkinter.Frame(self._aux_frame)
-
-    #==========================================================================
-    # canvasses
-    #==========================================================================
-    def _canvasses(self):     
-        self.__rpm_canvas()
-        self.__tach_canvas()
-        self.__oil_pres_canvas()
-        self.__oil_temp_canvas()
-        self.__water_temp_canvas()
-        
-    def __rpm_canvas(self):
-        self._rpm_canvas = tkinter.Canvas(self._rpm_frame)
-
-    def __tach_canvas(self):
-        self._tach_canvas = tkinter.Canvas(self._tach_frame)
-
-    def __oil_pres_canvas(self):
-
-        if hasattr(self, '_oil_pres_readout'):
-            self._oil_pres_readout.config(text=self.values['oil']['pres'])
-        else:
-            self._oil_pres_readout = tkinter.Label(self._oil_pres_frame, text=self.values['oil']['pres'])
-
-        self._oil_pres_canvas = tkinter.Canvas(self._oil_pres_frame)
-        
-        self._oil_pres_canvas.pack()
-        self._oil_pres_readout.pack()
-
-    def __oil_temp_canvas(self):
-        self._oil_temp_canvas = tkinter.Canvas(self._oil_temp_frame, width=328, height=285)
-
-    def __water_temp_canvas(self):
-        self._water_temp_canvas = tkinter.Canvas(self._water_temp_frame)
+        self._toplevel.after(1, self.update_gui)

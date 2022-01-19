@@ -17,15 +17,12 @@ class SensorHandler:
         self.updater_thread = threading.Thread(name='SensorUpdateThread', target=self._updater)
         self.updater_thread.start()
 
-
     def fetch(self):
         return self.current_updateset
-
 
     def stop(self):
         self.logger.warn("Received stop request, ending update loop")
         self.update = False
-
 
     def _updater(self):
         self.logger.debug("Initialized sensor update thread")
@@ -36,6 +33,8 @@ class SensorHandler:
             for i in range(10):
                 val += i
                 self.current_updateset = {
+                    "rtc": time.time(),
+                    "amb": 0,
                     "rpm": 800,
                     "tach": 0,
                     "oil": {
