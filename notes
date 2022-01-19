@@ -1,0 +1,12 @@
+width: 1024
+height: 600
+
+usable width: 1004
+usable height: 580
+
+
+gauge width: 328
+gauge height: 285
+
+gauge background: #3f3939
+gauge highlighted background: #272323
