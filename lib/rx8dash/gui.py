@@ -15,8 +15,9 @@ class GUI:
 
         self.width = int(self.config.config['hardware:screen']['width'])
         self.height = int(self.config.config['hardware:screen']['height'])
-        self.xpos = int(self.width / 2)
-        self.ypos = int(self.height / 2)
+
+        self.xpos = int(self.config.config['application:gui']['xpos'])
+        self.ypos = int(self.config.config['application:gui']['ypos'])
 
         # fetch initial sensor data
         self.values = self.sensors.fetch()
