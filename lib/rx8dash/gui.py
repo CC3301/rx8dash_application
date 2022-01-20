@@ -79,7 +79,7 @@ class GUI:
                                                highlightthickness=0, relief='ridge')
         self._oil_pres_canvas.pack(padx=0, pady=0, expand=1, fill='both')
         self._oil_pres_canvas.create_image(174, 142, image=self.__small_gauge_template)
-        self._oil_pres_icon = self._oil_pres_canvas.create_image(174, 220, image=self.__oil_pres_icon)
+        self._oil_pres_icon = self._oil_pres_canvas.create_image(174, 230, image=self.__oil_pres_icon)
         self._oil_pres_readout = self._oil_pres_canvas.create_text(174, 100, text="--- bar", fill=fc)
 
         self._oil_temp_canvas = tkinter.Canvas(self._oil_temp_frame, width=328, height=285, bd=0, bg=bg,
@@ -153,11 +153,11 @@ class GUI:
 
         # update oil pressure gauge
         if self.values['oil']['pres'] < 80:
-            self.__oil_pres_icon = self.__oil_pres_icon_blue
+            self.__oil_pres_icon = self.__oil_pres_icon_red
         elif 80 <= self.values['oil']['pres'] < 100:
             self.__oil_pres_icon = self.__oil_pres_icon_normal
         else:
-            self.__oil_pres_icon = self.__oil_temp_icon_red
+            self.__oil_pres_icon = self.__oil_pres_icon_red
 
         self._oil_pres_canvas.itemconfig(self._oil_pres_icon, image=self.__oil_pres_icon)
         self._oil_pres_canvas.itemconfig(self._oil_pres_readout,
