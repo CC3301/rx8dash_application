@@ -2,7 +2,7 @@ import logging
 from lib.sensors.collector import GenericCollector
 
 
-class CANBusCollector(GenericCollector):
+class HardwareSensorCollector(GenericCollector):
     def __init__(self, result_prefix):
         super().__init__(result_prefix)
         self._setup()
@@ -15,12 +15,12 @@ class CANBusCollector(GenericCollector):
         while self._readystate:
             for i in range(100):
                 self.data = {
-                    'engine': {
-                        'rpm': i,
-                        'tps': i
+                    'oil': {
+                        'temp': 300,
+                        'pressure': i
                     },
-                    'vehicle': {
-                        'velocity': i
+                    'water': {
+                        'temp': 300
                     }
                 }
             pass

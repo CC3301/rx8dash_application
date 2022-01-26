@@ -1,8 +1,9 @@
-import logging
+import time
+
 from lib.sensors.collector import GenericCollector
 
 
-class CANBusCollector(GenericCollector):
+class RTCTimeCollector(GenericCollector):
     def __init__(self, result_prefix):
         super().__init__(result_prefix)
         self._setup()
@@ -15,13 +16,7 @@ class CANBusCollector(GenericCollector):
         while self._readystate:
             for i in range(100):
                 self.data = {
-                    'engine': {
-                        'rpm': i,
-                        'tps': i
-                    },
-                    'vehicle': {
-                        'velocity': i
-                    }
+                    'time': time.time()
                 }
             pass
         self.logger.warning("collector stopped, this was either caused by an unhandled exception or intended shutdown")
