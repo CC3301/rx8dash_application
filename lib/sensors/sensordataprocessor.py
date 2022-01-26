@@ -5,7 +5,7 @@ from datetime import datetime
 
 class SensorDataProcessor:
     def __init__(self, config):
-        self.logger = logging.getLogger('lib.sensors.sensordataprocessor.SensorDataProcessor')
+        self.logger = logging.getLogger(__name__)
         self.config = config
         self._engine_oil_temperature = 0
         self._engine_oil_pressure = 0
@@ -18,6 +18,8 @@ class SensorDataProcessor:
         self._rtctime = 0
         self._rtc_time = 0
         self._rtc_date = 0
+
+        self._temperature_symbol = ''
 
         self._data_present = False
 
@@ -42,12 +44,16 @@ class SensorDataProcessor:
         self._rtc_time = 0
         self._rtc_date = 0
 
+        self._temperature_symbol = ''
+
         self._data_present = False
 
     def process(self, data):
-        self._engine_oil_temperature = data['sensor']['oil']['temp']
-        self._engine_oil_pressure = data['sensor']['oil']['pressure']
-        self._engine_water_temperature = data['sensor']['water']['temp']
+
+        # extract values into separate vars
+        self._engine_oil_temperature = data['sen']['oil']['temp']
+        self._engine_oil_pressure = data['sen']['oil']['pressure']
+        self._engine_water_temperature = data['sen']['water']['temp']
 
         self._engine_rpm = data['can']['engine']['rpm']
         self._engine_tps = data['can']['engine']['tps']
@@ -55,6 +61,9 @@ class SensorDataProcessor:
         self._vehicle_velocity = data['can']['vehicle']['velocity']
 
         self._rtctime = data['rtc']['time']
+
+        # set some static information derived from the config
+        self._temperature_symbol = self.config.temperaturesymbol()
 
         # extract human-readable formats from the units returned by the sensor aggregator
         self._rtc_time = datetime.fromtimestamp(self._rtctime).strftime(self.config.timeformat())
@@ -72,6 +81,10 @@ class SensorDataProcessor:
         self._data_present = True
 
     # accessors
+    def temperaturesymbol(self):
+        if self._data_present:
+            return str(self._temperature_symbol)
+
     def rtctime(self):
         if self._data_present:
             return str(self._rtc_time)

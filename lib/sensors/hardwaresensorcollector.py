@@ -1,10 +1,14 @@
 import logging
+import random
+
+import time
+
 from lib.sensors.collector import GenericCollector
 
 
 class HardwareSensorCollector(GenericCollector):
-    def __init__(self, result_prefix):
-        super().__init__(result_prefix)
+    def __init__(self):
+        super().__init__('sen')
         self._setup()
 
     def _setup(self):
@@ -13,16 +17,16 @@ class HardwareSensorCollector(GenericCollector):
     def _collect(self):
         self.logger.info(f"collector started")
         while self._readystate:
-            for i in range(100):
-                self.data = {
-                    'oil': {
-                        'temp': 300,
-                        'pressure': i
-                    },
-                    'water': {
-                        'temp': 300
-                    }
+            i = random.randint(0, 1000)
+            self.data = {
+                'oil': {
+                    'temp': i,
+                    'pressure': i
+                },
+                'water': {
+                    'temp': i + 200
                 }
-            pass
-        self.logger.warning("collector stopped, this was either caused by an unhandled exception or intended shutdown")
+            }
+            time.sleep(0.5)
+        self.logger.warning("readystate changed to false")
 

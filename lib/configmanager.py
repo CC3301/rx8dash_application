@@ -19,21 +19,27 @@ class ConfigManager:
             print(f"Failed to read config: {e}")
             sys.exit(2)
 
-    # accesors
-    def timeformat(self):
-        return self.parser.get('application:core', 'timeformat')
-
-    def dateformat(self):
-        return self.parser.get('application:core', 'dateformat')
-
+    # accessors
     def loggingformat(self):
         return self.parser.get('application:core', 'loggingformat')
 
+    def loglevel(self):
+        return self.parser.get('application:core', 'loglevel')
+
+    def timeformat(self):
+        return self.parser.get('application:units', 'timeformat')
+
+    def dateformat(self):
+        return self.parser.get('application:units', 'dateformat')
+
     def temperatureunit(self):
-        return self.parser.get('application:core', 'temperatureunit')
+        return self.parser.get('application:units', 'temperatureunit')
 
     def valueaccuracy(self):
-        return self.parser.get('application:core', 'valueaccuracy')
+        return self.parser.get('application:units', 'valueaccuracy')
+
+    def temperaturesymbol(self):
+        return self.parser.get('application:units', 'temperaturesymbol')
 
     def mainbackgroundcolor(self):
         return self.parser.get('application:gui', 'background')

@@ -8,10 +8,9 @@ from lib.gui.assetloader import AssetLoader
 
 class GUI:
     def __init__(self, q, config):
-        self.logger = logging.getLogger('lib.core.GUI')
+        self.logger = logging.getLogger(__name__)
         self.q = q
         self.config = config
-        self.sdp = SensorDataProcessor(self.config)
         self.assetloader = AssetLoader()
 
         self.toplevel = tkinter.Tk()
@@ -19,6 +18,8 @@ class GUI:
         self.toplevel.geometry(geometry)
 
         self.assetloader.load_all_assets()
+
+        self.sdp = SensorDataProcessor(self.config)
 
         self.label = tkinter.Label(self.toplevel, text="test")
         self.label2 = tkinter.Label(self.toplevel, text="test2")
@@ -49,3 +50,10 @@ class GUI:
         self.toplevel.mainloop()
         delta = (time.time() - start) / 60
         self.logger.info(f"MainLoop exited after {delta} minutes")
+
+    def stop(self):
+        self.logger.info("Stopping MainLoop")
+        try:
+            self.toplevel.destroy()
+        except tkinter.TclError as e:
+            pass

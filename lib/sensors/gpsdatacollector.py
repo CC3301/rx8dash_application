@@ -4,9 +4,9 @@ import time
 from lib.sensors.collector import GenericCollector
 
 
-class CANBusCollector(GenericCollector):
+class GPSDataCollector(GenericCollector):
     def __init__(self):
-        super().__init__('can')
+        super().__init__('gps')
         self._setup()
 
     def _setup(self):
@@ -17,12 +17,13 @@ class CANBusCollector(GenericCollector):
         while self._readystate:
             i = random.randint(0, 100)
             self.data = {
-                'engine': {
-                    'rpm': i,
-                    'tps': i
+                'position': {
+                    'lat': i,
+                    'long': i,
+                    'height': i
                 },
-                'vehicle': {
-                    'velocity': i
+                'attributes': {
+                    'speed': i
                 }
             }
             time.sleep(0.5)

@@ -1,0 +1,4 @@
+Channel     Rate    CAN ID  Offset(len) Formula
+RPM         50HZ    513     0(2)        *0,25
+WheelSpeed  50HZ    513     4(2)        *1,0
+TPS         50HZ    513     6(1)        *0,5

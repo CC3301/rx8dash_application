@@ -4,8 +4,8 @@ from lib.sensors.collector import GenericCollector
 
 
 class RTCTimeCollector(GenericCollector):
-    def __init__(self, result_prefix):
-        super().__init__(result_prefix)
+    def __init__(self):
+        super().__init__('rtc')
         self._setup()
 
     def _setup(self):
@@ -14,10 +14,9 @@ class RTCTimeCollector(GenericCollector):
     def _collect(self):
         self.logger.info(f"collector started")
         while self._readystate:
-            for i in range(100):
-                self.data = {
-                    'time': time.time()
-                }
-            pass
-        self.logger.warning("collector stopped, this was either caused by an unhandled exception or intended shutdown")
+            self.data = {
+                'time': time.time()
+            }
+            time.sleep(0.5)
+        self.logger.warning("readystate changed to false")
 
