@@ -15,7 +15,7 @@ class HardwareSensorCollector(GenericCollector):
         pass
 
     def _collect(self):
-        self.logger.info(f"collector started")
+        self.logger.debug(f"collector started")
         while self._readystate:
             i = random.randint(0, 1000)
             self.data = {
@@ -28,5 +28,5 @@ class HardwareSensorCollector(GenericCollector):
                 }
             }
             time.sleep(0.5)
-        self.logger.warning("readystate changed to false")
+        self.logger.debug("readystate changed to false")
 

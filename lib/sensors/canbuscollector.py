@@ -13,7 +13,7 @@ class CANBusCollector(GenericCollector):
         pass
 
     def _collect(self):
-        self.logger.info(f"collector started")
+        self.logger.debug(f"collector started")
         while self._readystate:
             i = random.randint(0, 100)
             self.data = {
@@ -26,5 +26,5 @@ class CANBusCollector(GenericCollector):
                 }
             }
             time.sleep(0.5)
-        self.logger.warning("readystate changed to false")
+        self.logger.debug("readystate changed to false")
 

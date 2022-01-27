@@ -23,7 +23,7 @@ class SensorDataProcessor:
 
         self._data_present = False
 
-        self.logger.info("Sensor data processor initialized")
+        self.logger.debug("Sensor data processor initialized")
 
     def __convert_celsius(self, val):
         return round(val - 273.15, int(self.config.valueaccuracy()))

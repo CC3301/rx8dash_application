@@ -12,11 +12,11 @@ class RTCTimeCollector(GenericCollector):
         pass
 
     def _collect(self):
-        self.logger.info(f"collector started")
+        self.logger.debug(f"collector started")
         while self._readystate:
             self.data = {
                 'time': time.time()
             }
             time.sleep(0.5)
-        self.logger.warning("readystate changed to false")
+        self.logger.debug("readystate changed to false")
 

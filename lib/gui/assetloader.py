@@ -42,10 +42,12 @@ class AssetLoader:
         self.logger.info(f"loading {len(self._templates_to_load)} templates")
         for file in self._templates_to_load:
             name = str(os.path.basename(file)).split('.')[0]
+            self.logger.debug(f"loading template: {file} under name {name}")
             self.templates[name] = ImageTk.PhotoImage(Image.open(f"{file}"))
 
     def load_icons(self):
         self.logger.info(f"loading {len(self._icons_to_load)} icons")
         for file in self._icons_to_load:
             name = str(os.path.basename(file)).split('.')[0]
+            self.logger.debug(f"loading icon: {file} under name {name}")
             self.icons[name] = ImageTk.PhotoImage(Image.open(f"{file}"))

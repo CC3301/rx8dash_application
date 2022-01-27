@@ -26,13 +26,13 @@ class Main:
         self.sensors = SensorAggregator(self.q)
         self.gui = GUI(self.q, self.config)
 
-        self.logger.info("Initial setup complete, waiting for run() call")
+        self.logger.debug("Initial setup complete, waiting for run() call")
 
     def run(self):
         self.sensors.start()
         while not self.sensors.ready():
             time.sleep(1)
-        self.logger.info("sensor aggregator available, starting GUI")
+        self.logger.info("SensorAggregator available, starting GUI")
         self.gui.start()
 
         # if we end up here, then the GUI has exited, and we should clean up

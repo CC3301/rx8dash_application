@@ -26,7 +26,7 @@ class SensorAggregator:
             collector.start(i)
             while not collector.ready():
                 pass
-        self.logger.info("all collectors available, starting aggregator thread")
+        self.logger.debug("all collectors available, starting aggregator thread")
         self.t.start()
 
     def ready(self):
@@ -35,14 +35,14 @@ class SensorAggregator:
     def stop(self):
         self.__keep_running = False
         self.t.join()
-        self.logger.info("stopped SensorAggregator, waiting for collectors to exit")
+        self.logger.debug("stopped SensorAggregator, waiting for collectors to exit")
         for collector in self.collectors:
             collector.stop()
             collector.t.join()
-        self.logger.warning("SensorAggregator has exited")
+        self.logger.debug("SensorAggregator has exited")
 
     def collect_and_aggregate(self):
-        self.logger.info("Starting SensorAggregator")
+        self.logger.debug("SensorAggregator started")
         while self.__keep_running:
             result = {}
             for collector in self.collectors:
@@ -54,5 +54,5 @@ class SensorAggregator:
 
             # it will take some time until the collectors have collected new data (CAN speed, sensor value
             # interpretation)
-            time.sleep(1)
-        self.logger.warning("readystate changed to false")
+            time.sleep(0.5)
+        self.logger.debug("readystate changed to false")
