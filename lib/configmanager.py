@@ -35,11 +35,14 @@ class ConfigManager:
     def temperatureunit(self):
         return self.parser.get('application:units', 'temperatureunit')
 
-    def valueaccuracy(self):
-        return self.parser.get('application:units', 'valueaccuracy')
+    def pressureunit(self):
+        return self.parser.get('application:units', 'pressureunit')
 
     def temperaturesymbol(self):
         return self.parser.get('application:units', 'temperaturesymbol')
+
+    def pressuresymbol(self):
+        return self.parser.get('application:units', 'pressuresymbol')
 
     def mainbackgroundcolor(self):
         return self.parser.get('application:gui', 'background')

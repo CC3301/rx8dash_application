@@ -16,17 +16,22 @@ class HardwareSensorCollector(GenericCollector):
 
     def _collect(self):
         self.logger.debug(f"collector started")
+        iterator = 0
+        modifier = 1
         while self._readystate:
-            i = random.randint(0, 1000)
             self.data = {
                 'oil': {
-                    'temp': i,
-                    'pressure': i
+                    'temp': iterator + 273,  # temp offset
+                    'pressure': iterator * 2 + 200
                 },
                 'water': {
-                    'temp': i + 200
+                    'temp': iterator + 273  # temp offset
                 }
             }
-            time.sleep(0.5)
+            iterator += modifier
+            if iterator > 120:
+                modifier = -1
+            if iterator < 1:
+                modifier = 1
+            time.sleep(0.1)
         self.logger.debug("readystate changed to false")
-

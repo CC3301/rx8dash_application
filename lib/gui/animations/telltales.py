@@ -1,3 +1,6 @@
+import time
+
+
 class TellTales:
     def __init__(self, master, config, al):
         self.master = master
@@ -18,15 +21,11 @@ class TellTales:
             self.al.rotate_template('needle_check', angle)
             self.master.oil_pressure_gauge.itemconfig(self.master.oil_pressure_gauge_needle,
                                                       image=self.al.templates['needle_check'])
-
             self.master.oil_temperature_gauge.itemconfig(self.master.oil_temperature_gauge_needle,
                                                          image=self.al.templates['needle_check'])
-
             self.master.water_temperature_gauge.itemconfig(self.master.water_temperature_gauge_needle,
                                                            image=self.al.templates['needle_check'])
-
             self.master.toplevel.after_idle(self.update)
-
             if angle >= 290:
                 modifier = -1
             if modifier < 0 and angle < 5:
@@ -38,13 +37,12 @@ class TellTales:
     def stop(self):
         self.master.oil_pressure_gauge.itemconfig(self.master.oil_pressure_gauge_needle,
                                                   image=self.al.templates['needle'])
-
         self.master.oil_temperature_gauge.itemconfig(self.master.oil_temperature_gauge_needle,
                                                      image=self.al.templates['needle'])
-
         self.master.water_temperature_gauge.itemconfig(self.master.water_temperature_gauge_needle,
                                                        image=self.al.templates['needle'])
         self.__keep_running = False
+        self.master.set_animation_lock(False)
         self.update = self.__do_nothing
 
     def __do_nothing(self, *args):

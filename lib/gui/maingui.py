@@ -6,6 +6,6 @@ def rootwindow(config):
     geometry = f"{config.windowwidth()}x{config.windowheight()}"
     toplevel.geometry(geometry)
     toplevel.resizable(False, False)
-    toplevel.config(bg=config.mainbackgroundcolor())
+    toplevel.config(bg=config.mainbackgroundcolor(), padx=20)
     toplevel.title('rx8dash')
     return toplevel

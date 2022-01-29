@@ -180,10 +180,10 @@ class GUI:
 
         # water temp icons
         self.__water_temp_icon_blue = ImageTk.PhotoImage(
-            Image.open("data/assets/aux_gauges/icons/water_temp_blue.png").resize((65, 54), Image.ANTIALIAS)
+            Image.open("data/assets/aux_gauges/icons/water_temp_low.png").resize((65, 54), Image.ANTIALIAS)
         )
         self.__water_temp_icon_red = ImageTk.PhotoImage(
-            Image.open("data/assets/aux_gauges/icons/water_temp_red.png").resize((65, 54), Image.ANTIALIAS)
+            Image.open("data/assets/aux_gauges/icons/water_temp_high.png").resize((65, 54), Image.ANTIALIAS)
         )
         self.__water_temp_icon_normal = ImageTk.PhotoImage(
             Image.open("data/assets/aux_gauges/icons/water_temp_normal.png").resize((65, 54), Image.ANTIALIAS)
@@ -191,10 +191,10 @@ class GUI:
 
         # oil temp icons
         self.__oil_temp_icon_blue = ImageTk.PhotoImage(
-            Image.open("data/assets/aux_gauges/icons/oil_temp_blue.png").resize((80, 80), Image.ANTIALIAS)
+            Image.open("data/assets/aux_gauges/icons/oil_temp_low.png").resize((80, 80), Image.ANTIALIAS)
         )
         self.__oil_temp_icon_red = ImageTk.PhotoImage(
-            Image.open("data/assets/aux_gauges/icons/oil_temp_red.png").resize((80, 80), Image.ANTIALIAS)
+            Image.open("data/assets/aux_gauges/icons/oil_temp_high.png").resize((80, 80), Image.ANTIALIAS)
         )
         self.__oil_temp_icon_normal = ImageTk.PhotoImage(
             Image.open("data/assets/aux_gauges/icons/oil_temp_normal.png").resize((80, 80), Image.ANTIALIAS)
@@ -202,10 +202,10 @@ class GUI:
 
         # oil pressure icons
         self.__oil_pres_icon_blue = ImageTk.PhotoImage(
-            Image.open("data/assets/aux_gauges/icons/oil_pressure_blue.png").resize((80, 80), Image.ANTIALIAS)
+            Image.open("data/assets/aux_gauges/icons/oil_pressure_low.png").resize((80, 80), Image.ANTIALIAS)
         )
         self.__oil_pres_icon_red = ImageTk.PhotoImage(
-            Image.open("data/assets/aux_gauges/icons/oil_pressure_red.png").resize((80, 80), Image.ANTIALIAS)
+            Image.open("data/assets/aux_gauges/icons/oil_pressure_high.png").resize((80, 80), Image.ANTIALIAS)
         )
         self.__oil_pres_icon_normal = ImageTk.PhotoImage(
             Image.open("data/assets/aux_gauges/icons/oil_pressure_normal.png").resize((80, 80), Image.ANTIALIAS)

@@ -66,17 +66,17 @@ class AssetLoader:
         self.raw_templates[new_name] = self.raw_templates[name]
         self.templates[new_name] = ImageTk.PhotoImage(self.raw_templates[name].rotate(angle))
 
-    def crop_template(self, name, width, height, new_name=""):
+    def resize_template(self, name, scale, new_name=""):
         if new_name == "":
             new_name = name
-        self.templates[new_name] = ImageTk.PhotoImage(self.raw_templates[name].resize(width, height))
+        self.templates[new_name] = ImageTk.PhotoImage(self.raw_templates[name].resize(scale))
 
     def rotate_icon(self, name, angle, new_name=""):
         if new_name == "":
             new_name = name
         self.icons[new_name] = ImageTk.PhotoImage(self.raw_icons[name].rotate(angle))
 
-    def crop_icon(self, name, width, height, new_name=""):
+    def resize_icon(self, name, scale, new_name=""):
         if new_name == "":
             new_name = name
-        self.icons[new_name] = ImageTk.PhotoImage(self.raw_icons[name].resize(width, height))
+        self.icons[new_name] = ImageTk.PhotoImage(self.raw_icons[name].resize(scale))
