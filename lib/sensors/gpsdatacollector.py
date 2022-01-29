@@ -24,7 +24,8 @@ class GPSDataCollector(GenericCollector):
                 },
                 'attributes': {
                     'speed': i
-                }
+                },
+                'time': time.time()
             }
             time.sleep(0.5)
         self.logger.debug("readystate changed to false")

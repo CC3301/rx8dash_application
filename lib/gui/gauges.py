@@ -8,9 +8,10 @@ def oil_pressure_gauge(root, config, al):
     canvas.create_image(174, 142, image=al.templates['small_gauge'])
 
     icon = canvas.create_image(174, 230, image=al.icons['oil_pressure_normal'])
+    needle = canvas.create_image(174, 142, image=al.templates['needle'])
     text = canvas.create_text(174, 100, text="---", fill=config.mainfontcolor())
 
-    return canvas, icon, text
+    return canvas, icon, text, needle
 
 
 def oil_temperature_gauge(root, config, al):
@@ -20,9 +21,10 @@ def oil_temperature_gauge(root, config, al):
     canvas.create_image(174, 142, image=al.templates['small_gauge'])
 
     icon = canvas.create_image(174, 230, image=al.icons['oil_temp_normal'])
+    needle = canvas.create_image(174, 142, image=al.templates['needle'])
     text = canvas.create_text(174, 100, text="---", fill=config.mainfontcolor())
 
-    return canvas, icon, text
+    return canvas, icon, text, needle
 
 
 def water_temperature_gauge(root, config, al):
@@ -32,9 +34,10 @@ def water_temperature_gauge(root, config, al):
     canvas.create_image(174, 142, image=al.templates['small_gauge'])
 
     icon = canvas.create_image(174, 220, image=al.icons['water_temp_normal'])
+    needle = canvas.create_image(174, 142, image=al.templates['needle'])
     text = canvas.create_text(174, 100, text="---", fill=config.mainfontcolor())
 
-    return canvas, icon, text
+    return canvas, icon, text, needle
 
 
 def time_date_gauge(root, config, al):

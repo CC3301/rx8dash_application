@@ -4,13 +4,13 @@ import threading
 
 from lib.sensors.hardwaresensorcollector import HardwareSensorCollector
 from lib.sensors.canbuscollector import CANBusCollector
-from lib.sensors.rtctimecollector import RTCTimeCollector
 from lib.sensors.gpsdatacollector import GPSDataCollector
 
 
 class SensorAggregator:
-    def __init__(self, q):
+    def __init__(self, q, rq):
         self.q = q
+        self.rq = rq
 
         self.logger = logging.getLogger(__name__)
         self.t = threading.Thread(name=__class__.__name__, target=self.collect_and_aggregate)
@@ -18,14 +18,16 @@ class SensorAggregator:
         self.__keep_running = False
         self.previous_result = {}
 
-        self.collectors = [CANBusCollector(), HardwareSensorCollector(), RTCTimeCollector(), GPSDataCollector()]
+        self.collectors = [CANBusCollector(), HardwareSensorCollector(), GPSDataCollector()]
 
     def start(self):
+        self.logger.debug("Starting collectors")
         self.__keep_running = True
         for i, collector in enumerate(self.collectors):
             collector.start(i)
             while not collector.ready():
                 pass
+            self.rq.put(f"{collector.result_prefix}")
         self.logger.debug("all collectors available, starting aggregator thread")
         self.t.start()
 
@@ -54,5 +56,5 @@ class SensorAggregator:
 
             # it will take some time until the collectors have collected new data (CAN speed, sensor value
             # interpretation)
-            time.sleep(0.5)
+            time.sleep(0.1)
         self.logger.debug("readystate changed to false")

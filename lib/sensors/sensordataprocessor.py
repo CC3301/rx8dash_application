@@ -15,9 +15,9 @@ class SensorDataProcessor:
         self._engine_tps = 0
         self._vehicle_velocity = 0
         self._vehicle_velocity_gps = 0
-        self._rtctime = 0
-        self._rtc_time = 0
-        self._rtc_date = 0
+        self._gpstime = 0
+        self._gps_time = 0
+        self._gps_date = 0
 
         self._temperature_symbol = ''
 
@@ -40,9 +40,9 @@ class SensorDataProcessor:
         self._engine_tps = 0
         self._vehicle_velocity = 0
         self._vehicle_velocity_gps = 0
-        self._rtctime = 0
-        self._rtc_time = 0
-        self._rtc_date = 0
+        self._gpstime = 0
+        self._gps_time = 0
+        self._gps_date = 0
 
         self._temperature_symbol = ''
 
@@ -60,14 +60,14 @@ class SensorDataProcessor:
 
         self._vehicle_velocity = data['can']['vehicle']['velocity']
 
-        self._rtctime = data['rtc']['time']
+        self._gpstime = data['gps']['time']
 
         # set some static information derived from the config
         self._temperature_symbol = self.config.temperaturesymbol()
 
         # extract human-readable formats from the units returned by the sensor aggregator
-        self._rtc_time = datetime.fromtimestamp(self._rtctime).strftime(self.config.timeformat())
-        self._rtc_date = datetime.fromtimestamp(self._rtctime).strftime(self.config.dateformat())
+        self._gps_time = datetime.fromtimestamp(self._gpstime).strftime(self.config.timeformat())
+        self._gps_date = datetime.fromtimestamp(self._gpstime).strftime(self.config.dateformat())
 
         # temperatures are returned in kelvin, convert them accordingly
         if self.config.temperatureunit() == 'celsius':
@@ -85,13 +85,13 @@ class SensorDataProcessor:
         if self._data_present:
             return str(self._temperature_symbol)
 
-    def rtctime(self):
+    def gpstime(self):
         if self._data_present:
-            return str(self._rtc_time)
+            return str(self._gps_time)
 
-    def rtcdate(self):
+    def gpsdate(self):
         if self._data_present:
-            return str(self._rtc_date)
+            return str(self._gps_date)
 
     def engine_oil_temp(self):
         if self._data_present:
