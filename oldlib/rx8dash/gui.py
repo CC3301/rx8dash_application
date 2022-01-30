@@ -175,7 +175,7 @@ class GUI:
             Image.open(f"data/assets/templates/small_gauge.png").resize((328, 285), Image.ANTIALIAS)
         )
         self.__needle = ImageTk.PhotoImage(
-            Image.open("data/assets/templates/needle.png").resize((270, 270), Image.ANTIALIAS)
+            Image.open("data/assets/templates/needle_orig.png").resize((270, 270), Image.ANTIALIAS)
         )
 
         # water temp icons

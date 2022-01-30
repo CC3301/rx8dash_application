@@ -64,7 +64,7 @@ class GUI:
 
         self.logger.info("Begin default GUI updatecycle")
         self._first_run = False
-        self.mainframe.grid(column=0, row=0, padx=0, pady=0)
+        self.mainframe.grid(column=0, row=0, padx=0, pady=20)
         self.telltales_animation.load()
 
     def check_ready(self):
