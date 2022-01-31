@@ -19,11 +19,6 @@ class Main:
             self.logger.critical("Cannot run without config!")
             sys.exit(1)
 
-        skip_startup = False
-        if len(sys.argv) > 2:
-            if sys.argv[2] == 'no-startup':
-                skip_startup = True
-
         configpath = sys.argv[1]
         self.config = ConfigManager(configpath)
 
@@ -34,7 +29,7 @@ class Main:
         self.rq = queue.Queue()
 
         self.sensors = SensorAggregator(self.q, self.rq)
-        self.gui = GUI(self.q, self.rq, self.config, skip_startup)
+        self.gui = GUI(self.q, self.rq, self.config)
 
         self.sensor_starter = threading.Thread(target=self.sensors.start, name="SensorStarter")
 
@@ -54,7 +49,11 @@ class Main:
         self.sensors.stop()
 
 
-if __name__ == '__main__':
+def main():
     app = Main()
     SignalHandler(app)
     app.run()
+
+
+if __name__ == '__main__':
+    main()

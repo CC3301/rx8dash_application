@@ -6,15 +6,13 @@ from lib.sensors.sensordataprocessor import SensorDataProcessor
 from lib.gui.assetloader import AssetLoader
 
 from lib.gui.maingui import rootwindow
-from lib.gui.gauges import oil_pressure_gauge, oil_temperature_gauge, water_temperature_gauge, time_date_gauge, \
-    map_canvas
+from lib.gui.gauges import oil_pressure_gauge, oil_temperature_gauge, water_temperature_gauge, time_date_gauge
 
-from lib.gui.animations.startup import StartupAnimation
 from lib.gui.animations.telltales import TellTales
 
 
 class GUI:
-    def __init__(self, q, rq, config, skip_startup):
+    def __init__(self, q, rq, config):
         self.logger = logging.getLogger(__name__)
         self.q = q
         self.rq = rq
@@ -22,7 +20,6 @@ class GUI:
         self.al = AssetLoader()
         self.sdp = SensorDataProcessor(self.config)
 
-        self._skip_startup = skip_startup
         self._first_run = True
         self.animation_lock = False
 
@@ -38,7 +35,6 @@ class GUI:
         self.mainframe = tkinter.Frame(self.toplevel, bg=config.mainbackgroundcolor())
 
         # startup animation
-        self.startup_animation = StartupAnimation(self.toplevel, self.config, self.al)
         self.telltales_animation = TellTales(self, self.config, self.al)
 
         # gauges
@@ -54,31 +50,11 @@ class GUI:
         self.time_date_gauge, self.time_date_gauge_time, self.time_date_gauge_date = \
             time_date_gauge(self.mainframe, self.config, self.al)
 
-        # self.map_canvas, self.map_canvas_map, self.map_canvas_location = map_canvas(self.mainframe, self.config, self.al)
-
     def first_update_cycle(self):
-        if self._skip_startup is False:
-            self.logger.info("running startup animation")
-            self.startup_animation.load()
-            self.check_ready()
-
-        self.logger.info("Begin default GUI updatecycle")
+        self.logger.info("Initial Update Cycle of GUI")
         self._first_run = False
         self.mainframe.grid(column=0, row=0, padx=0, pady=20)
         self.telltales_animation.load()
-
-    def check_ready(self):
-        if self.rq.empty():
-            if len(self.seen_collectors) == len(self.target_collectors):
-                self.startup_animation.stop()
-                self.logger.info("All collectors ready, stopping startup sequence")
-            else:
-                self.toplevel.after(500, self.check_ready)
-        else:
-            current = self.rq.get()
-            self.logger.debug(f"'{current}' collector has become ready")
-            self.seen_collectors.append(current)
-            self.toplevel.after(500, self.check_ready)
 
     def set_animation_lock(self, boolean=True):
         self.animation_lock = boolean
