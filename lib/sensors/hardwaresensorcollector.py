@@ -33,5 +33,5 @@ class HardwareSensorCollector(GenericCollector):
                 modifier = -1
             if iterator < 1:
                 modifier = 1
-            time.sleep(0.1)
+            time.sleep(self.delay)
         self.logger.debug("readystate changed to false")

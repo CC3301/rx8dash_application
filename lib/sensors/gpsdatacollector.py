@@ -27,6 +27,6 @@ class GPSDataCollector(GenericCollector):
                 },
                 'time': time.time()
             }
-            time.sleep(0.5)
+            time.sleep(self.delay)
         self.logger.debug("readystate changed to false")
 

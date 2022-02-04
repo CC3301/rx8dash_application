@@ -2,26 +2,21 @@ import logging
 import tkinter
 import time
 
-from lib.sensors.sensordataprocessor import SensorDataProcessor
-from lib.gui.assetloader import AssetLoader
+from lib.gui.skinloader import SkinLoader
 
-from lib.gui.maingui import rootwindow
-from lib.gui.gauges import oil_pressure_gauge, oil_temperature_gauge, water_temperature_gauge, time_date_gauge
-
-from lib.gui.animations.telltales import TellTales
+from lib.gui.parts import rootwindow, base_canvas, radial_gauge, g_display
+from lib.gui.info_display import InfoDisplay
+from lib.gui.g_display import GDisplay
 
 
 class GUI:
-    def __init__(self, q, rq, config):
+    def __init__(self, q, config):
         self.logger = logging.getLogger(__name__)
         self.q = q
-        self.rq = rq
         self.config = config
-        self.al = AssetLoader()
-        self.sdp = SensorDataProcessor(self.config)
+        self.sl = SkinLoader(self.config)
 
-        self._first_run = True
-        self.animation_lock = False
+        self.data = None
 
         self.target_collectors = ['can', 'gps', 'sen']
         self.seen_collectors = []
@@ -29,87 +24,76 @@ class GUI:
         # get the toplevel window, we don't need more than that to load assets
         self.toplevel = rootwindow(self.config)
         self.toplevel.bind('<Control-t>', self.__stop_gui)
-        self.al.load_all_assets()
+        self.sl.load_skin()
 
-        # frames
-        self.mainframe = tkinter.Frame(self.toplevel, bg=config.mainbackgroundcolor())
+        self.sl.resize_asset('g_display_dot', (3, 3), 'g_display_dot')
 
-        # startup animation
-        self.telltales_animation = TellTales(self, self.config, self.al)
+        self._update_end = 0
+        self._update_start = 0
 
-        # gauges
-        self.oil_pressure_gauge, self.oil_pressure_gauge_icon, self.oil_pressure_gauge_text, \
-            self.oil_pressure_gauge_needle = oil_pressure_gauge(self.mainframe, self.config, self.al)
+        # create base canvas
+        self.base_canvas, self.background = base_canvas(self.toplevel, self.config, self.sl)
 
-        self.oil_temperature_gauge, self.oil_temperature_gauge_icon, self.oil_temperature_gauge_text, \
-            self.oil_temperature_gauge_needle = oil_temperature_gauge(self.mainframe, self.config, self.al)
+        # create gauges
+        self.oil_pressure_gauge_text, self.oil_pressure_gauge_needle = radial_gauge(self.base_canvas, self.config,
+                                                                                    self.sl, 'oil_pressure')
+        self.oil_temperature_gauge_text, self.oil_temperature_gauge_needle = radial_gauge(self.base_canvas, self.config,
+                                                                                          self.sl, 'oil_temp')
+        self.water_temperature_gauge_text, self.water_temperature_gauge_needle = radial_gauge(self.base_canvas,
+                                                                                              self.config, self.sl,
+                                                                                              'water_temp')
 
-        self.water_temperature_gauge, self.water_temperature_gauge_icon, self.water_temperature_gauge_text, \
-            self.water_temperature_gauge_needle = water_temperature_gauge(self.mainframe, self.config, self.al)
+        self.g_display = GDisplay(self.base_canvas, self.config, self.sl)
+        self.g_display.init()
 
-        self.time_date_gauge, self.time_date_gauge_time, self.time_date_gauge_date = \
-            time_date_gauge(self.mainframe, self.config, self.al)
-
-    def first_update_cycle(self):
-        self.logger.info("Initial Update Cycle of GUI")
-        self._first_run = False
-        self.mainframe.grid(column=0, row=0, padx=0, pady=20)
-        self.telltales_animation.load()
-
-    def set_animation_lock(self, boolean=True):
-        self.animation_lock = boolean
+        self.info_display = InfoDisplay(self.base_canvas, self.config, self.sl)
+        self.info_display.init()
 
     def update(self):
-        # if an animation is in progress, we don't need to update the gui
-        if self.animation_lock:
-            self.logger.debug("animation in progress, waiting for animation end")
-            self.toplevel.after(500, self.update)
-            return
-
-        # if we haven't updated for the first time, there is some more stuff to do
-        if self._first_run:
-            self.first_update_cycle()
-            self.toplevel.after(500, self.update)
-            return
+        duration = self._update_end - self._update_start
+        self._update_start = time.time()
 
         # if there is no data available, don't do anything and try again
         if self.q.empty():
             self.toplevel.after(1, self.update)
             return
 
-        # get and process available update
-        self.sdp.process(self.q.get())
+        # get available update
+        self.data = self.q.get()
 
-        self.oil_pressure_gauge.itemconfig(self.oil_pressure_gauge_text,
-                                           text=self.sdp.engine_oil_pressure)
-        self.al.rotate_template('needle', self.sdp.engine_oil_pressure_needle_position, 'needle_oilp')
-        self.oil_pressure_gauge.itemconfig(self.oil_pressure_gauge_needle,
-                                           image=self.al.templates['needle_oilp'])
-        self.oil_pressure_gauge.itemconfig(self.oil_pressure_gauge_icon,
-                                           image=self.al.icons[f"oil_pressure_{self.sdp.engine_oil_pressure_status}"])
+        # update oil pressure gauge
+        self.sl.rotate_asset('needle', self.data['sen']['oil']['pressure']['needle_rotation'], 'needle_oilp')
+        self.base_canvas.itemconfig(self.oil_pressure_gauge_text,
+                                    text=self.data['sen']['oil']['pressure']['val'])
+        self.base_canvas.itemconfig(self.oil_pressure_gauge_needle,
+                                    image=self.sl.assets['needle_oilp'])
 
-        self.oil_temperature_gauge.itemconfig(self.oil_temperature_gauge_text,
-                                              text=self.sdp.engine_oil_temperature)
-        self.al.rotate_template('needle', self.sdp.engine_oil_temperature_needle_position, 'needle_oilt')
-        self.oil_temperature_gauge.itemconfig(self.oil_temperature_gauge_needle,
-                                              image=self.al.templates['needle_oilt'])
-        self.oil_temperature_gauge.itemconfig(self.oil_pressure_gauge_icon,
-                                              image=self.al.icons[f"oil_temp_{self.sdp.engine_oil_temperature_status}"])
+        # update oil temp gauge
+        self.sl.rotate_asset('needle', self.data['sen']['oil']['temperature']['needle_rotation'], 'needle_oilt')
+        self.base_canvas.itemconfig(self.oil_temperature_gauge_text,
+                                    text=self.data['sen']['oil']['temperature']['val'])
+        self.base_canvas.itemconfig(self.oil_temperature_gauge_needle,
+                                    image=self.sl.assets['needle_oilt'])
 
-        self.water_temperature_gauge.itemconfig(self.water_temperature_gauge_text,
-                                                text=self.sdp.engine_water_temperature)
-        self.al.rotate_template('needle', self.sdp.engine_water_temperature_needle_position, 'needle_water')
-        self.water_temperature_gauge.itemconfig(self.water_temperature_gauge_needle,
-                                                image=self.al.templates['needle_water'])
-        self.water_temperature_gauge.itemconfig(self.water_temperature_gauge_icon,
-                                                image=self.al.icons[f"water_temp_{self.sdp.engine_water_temperature_status}"])
+        # update water temp gauge
+        self.sl.rotate_asset('needle', self.data['sen']['water']['temperature']['needle_rotation'], 'needle_water')
+        self.base_canvas.itemconfig(self.water_temperature_gauge_text,
+                                    text=self.data['sen']['water']['temperature']['val'])
+        self.base_canvas.itemconfig(self.water_temperature_gauge_needle,
+                                    image=self.sl.assets['needle_water'])
 
-        self.time_date_gauge.itemconfig(self.time_date_gauge_time, text=self.sdp.gpstime)
-        self.time_date_gauge.itemconfig(self.time_date_gauge_date, text=self.sdp.gpsdate)
+        # update info display
+        self.info_display.root.itemconfig(self.info_display.ups_counter, text=f"{abs(int(1/duration))} ups")
+        self.info_display.root.itemconfig(self.info_display.time, text=self.data['gps']['time']['time'])
+        self.info_display.root.itemconfig(self.info_display.date, text=self.data['gps']['time']['date'])
+
+        # update g_display
+        self.g_display.update_dot_pos(self.data['gyr']['gyro']['x'], self.data['gyr']['gyro']['y'])
 
         # update the toplevel
         self.toplevel.update()
-        self.toplevel.after(1, self.update)
+        self.toplevel.after(0, self.update)
+        self._update_end = time.time()
 
     def start(self):
         self.logger.info("Initiating MainLoop")

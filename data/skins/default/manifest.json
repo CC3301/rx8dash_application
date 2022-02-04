@@ -1,0 +1,8 @@
+{
+    "assets": {
+        "background": "templates/background.png",
+        "needle": "templates/needle.png",
+        "g_display_dot": "icons/g_display_dot.png"
+    },
+    "gauge_positions": "positions.json"
+}

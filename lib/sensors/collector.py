@@ -12,6 +12,8 @@ class GenericCollector:
         self.logger = logging.getLogger(f'{__name__}({self.result_prefix})')
         self.t = threading.Thread(target=self._collect)
 
+        self.delay = 0.05
+
     def fetch(self):
         if not self._readystate:
             return {}

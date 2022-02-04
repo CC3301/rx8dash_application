@@ -5,12 +5,15 @@ import threading
 from lib.sensors.hardwaresensorcollector import HardwareSensorCollector
 from lib.sensors.canbuscollector import CANBusCollector
 from lib.sensors.gpsdatacollector import GPSDataCollector
+from lib.sensors.gyrocollector import GyroCollector
+
+from lib.sensors.sensordataprocessor_new import SensorDataProcessor
 
 
 class SensorAggregator:
-    def __init__(self, q, rq):
+    def __init__(self, q, config):
         self.q = q
-        self.rq = rq
+        self.config = config
 
         self.logger = logging.getLogger(__name__)
         self.t = threading.Thread(name=__class__.__name__, target=self.collect_and_aggregate)
@@ -18,7 +21,9 @@ class SensorAggregator:
         self.__keep_running = False
         self.previous_result = {}
 
-        self.collectors = [CANBusCollector(), HardwareSensorCollector(), GPSDataCollector()]
+        self.collectors = [CANBusCollector(), HardwareSensorCollector(), GPSDataCollector(), GyroCollector()]
+
+        self.sdp = SensorDataProcessor(self.config)
 
     def start(self):
         self.logger.debug("Starting collectors")
@@ -27,7 +32,6 @@ class SensorAggregator:
             collector.start(i)
             while not collector.ready():
                 pass
-            self.rq.put(f"{collector.result_prefix}")
         self.logger.debug("all collectors available, starting aggregator thread")
         self.t.start()
 
@@ -52,9 +56,9 @@ class SensorAggregator:
 
             if result != self.previous_result:
                 self.previous_result = result
-                self.q.put(result)
+                self.q.put(self.sdp.process(result))
 
             # it will take some time until the collectors have collected new data (CAN speed, sensor value
             # interpretation)
-            time.sleep(0.1)
+            time.sleep(0.045)
         self.logger.debug("readystate changed to false")

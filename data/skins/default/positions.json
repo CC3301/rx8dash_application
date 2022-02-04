@@ -1,0 +1,33 @@
+{
+    "gauges": {
+        "oil_pressure": {
+            "needle_center_pos": [141, 113],
+            "readout_top_left": [236, 71]
+        },
+        "oil_temp": {
+            "needle_center_pos": [141, 300],
+            "readout_top_left": [236, 342]
+        },
+        "water_temp": {
+            "needle_center_pos": [141, 489],
+            "readout_top_left": [236, 531]
+        },
+        "speedometer": {
+            "readout_top_left": [580, 167]
+        },
+        "throttle":{
+            "readout_top_left": [580, 292]
+        },
+        "d_display": {
+            "anchor_nw": [796, 386],
+            "width_height": [177, 177]
+        },
+        "g_display_dot": {
+            "needle_center_pos": [884, 476]
+        },
+        "info_display": {
+            "anchor_nw": [462, 158],
+            "width_height": [311, 396]
+        }
+    }
+}

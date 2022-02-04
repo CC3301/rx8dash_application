@@ -25,6 +25,6 @@ class CANBusCollector(GenericCollector):
                     'velocity': i
                 }
             }
-            time.sleep(0.5)
+            time.sleep(self.delay)
         self.logger.debug("readystate changed to false")
 

@@ -28,8 +28,8 @@ class Main:
         self.q = queue.Queue()
         self.rq = queue.Queue()
 
-        self.sensors = SensorAggregator(self.q, self.rq)
-        self.gui = GUI(self.q, self.rq, self.config)
+        self.sensors = SensorAggregator(self.q, self.config)
+        self.gui = GUI(self.q, self.config)
 
         self.sensor_starter = threading.Thread(target=self.sensors.start, name="SensorStarter")
 
