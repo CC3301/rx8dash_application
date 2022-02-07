@@ -43,11 +43,11 @@ class SkinLoader:
     def getpos(self, gauge):
         return self.gauge_positions['gauges'][gauge]
 
-    def rotate_asset(self, name, angle, new_name):
+    def rotate_asset(self, gauge, name, angle, new_name):
         if angle > int(self.config.parser.get("application:gauges", "max_angle")):
             angle = int(self.config.parser.get("application:gauges", "max_angle"))
         angle = 0 - angle
         self.assets[new_name] = ImageTk.PhotoImage(self.__raw_assets[name].rotate(angle), Image.ANTIALIAS)
 
     def resize_asset(self, name, scale, new_name):
-        self.assets[new_name] = ImageTk.PhotoImage(self.__raw_assets[name].resize(scale))
+        self.assets[new_name] = ImageTk.PhotoImage(self.__raw_assets[name].resize(scale), Image.ANTIALIAS)

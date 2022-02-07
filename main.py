@@ -1,13 +1,10 @@
 import sys
-
 import logging
-import queue
-import threading
 
 from lib.signalhandler import SignalHandler
 
 from lib.core import GUI
-from lib.aggregator import SensorAggregator
+from lib.connection import Connection
 from lib.configmanager import ConfigManager
 
 
@@ -25,18 +22,15 @@ class Main:
         logging.basicConfig(level=self.config.loglevel(), format=self.config.loggingformat())
 
         self.logger.info("Starting rx8dash")
-        self.q = queue.Queue()
-        self.rq = queue.Queue()
 
-        self.sensors = SensorAggregator(self.q, self.config)
-        self.gui = GUI(self.q, self.config)
-
-        self.sensor_starter = threading.Thread(target=self.sensors.start, name="SensorStarter")
+        self.connection = Connection(self.config.parser.get("application:data_provider", "remote_addr"),
+                                     self.config.parser.get("application:data_provider", "remote_port"))
+        self.gui = GUI(self.config, self.connection)
 
         self.logger.debug("Initial setup complete, waiting for run() call")
 
     def run(self):
-        self.sensor_starter.start()
+        self.connection.start()
         self.gui.start()
 
         # if we end up here, then the GUI has exited, and we should clean up
@@ -44,9 +38,8 @@ class Main:
 
     def stop(self):
         self.logger.info("Stopping rx8dash")
-        self.sensor_starter.join()
         self.gui.stop()
-        self.sensors.stop()
+        self.connection.stop()
 
 
 def main():

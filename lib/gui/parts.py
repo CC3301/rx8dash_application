@@ -23,13 +23,14 @@ def base_canvas(root, config, sl):
 
 def radial_gauge(root, config, sl, gauge_name):
     needle = root.create_image(sl.getpos(gauge_name)['needle_center_pos'], image=sl.assets['needle'])
-    text = root.create_text(sl.getpos(gauge_name)['readout_top_left'], text="---", fill=config.mainfontcolor())
+    text = root.create_text(sl.getpos(gauge_name)['readout_top_left'], text="---",
+                            fill=config.parser.get("application:gui", "fontcolor"))
 
     return text, needle
 
 
-def g_display(root, config, sl):
-    x, y = sl.getpos('g_display_dot')['needle_center_pos']
-    g_display_dot = root.create_image(x, y, image=sl.assets['g_display_dot'])
+def vehicle_speed(root, config, sl):
+    text = root.create_text(sl.getpos("speedometer")['readout_top_left'], text="---",
+                            fill=config.parser.get("application:gui", "fontcolor"))
 
-    return g_display_dot
+    return text

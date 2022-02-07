@@ -1,5 +1,9 @@
 {
     "gauges": {
+        "battery_voltage": {
+            "needle_center_pos": [0, 0],
+            "readout_top_left": [0, 0]
+        },
         "oil_pressure": {
             "needle_center_pos": [141, 113],
             "readout_top_left": [236, 71]

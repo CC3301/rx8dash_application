@@ -16,7 +16,7 @@ class InfoDisplay:
 
         self.time = self.root.create_text(50, 10, text="time", fill=self.fontcolor)
         self.date = self.root.create_text(50, 30, text="date", fill=self.fontcolor)
-        self.ups_counter = self.root.create_text(50, 50, text="--- fps", fill=self.fontcolor)
+        self.ups_counter = self.root.create_text(50, 50, text="--- ups", fill=self.fontcolor)
 
     def init(self):
         self.toplevel.create_window(self.sl.getpos("info_display")['anchor_nw'], anchor="nw", window=self.root)
